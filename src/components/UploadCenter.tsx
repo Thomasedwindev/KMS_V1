@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Upload, FileCode, Database as DatabaseIcon, FileText, CheckCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { jsonStorage } from '../lib/jsonStorage';
 import { parseVBCode, parseSQLFile, parseLogFile, generateFlowFromLog } from '../utils/parsers';
 
 export default function UploadCenter() {
@@ -31,7 +31,7 @@ export default function UploadCenter() {
       if (fileType === 'code') {
         const { functions, queries, summary } = parseVBCode(content);
 
-        const { error } = await supabase.from('code_docs').insert({
+        await jsonStorage.insert('code_docs', {
           filename: selectedFile.name,
           content,
           functions,
@@ -39,10 +39,8 @@ export default function UploadCenter() {
           summary
         });
 
-        if (error) throw error;
-
         for (const query of queries) {
-          await supabase.from('query_library').insert({
+          await jsonStorage.insert('query_library', {
             query_text: query.query,
             category: query.type.toLowerCase(),
             source_file: selectedFile.name
@@ -54,7 +52,7 @@ export default function UploadCenter() {
         const { queries, summary } = parseSQLFile(content);
 
         for (const query of queries) {
-          await supabase.from('query_library').insert({
+          await jsonStorage.insert('query_library', {
             query_text: query.query,
             category: query.type.toLowerCase(),
             source_file: selectedFile.name,
@@ -66,17 +64,15 @@ export default function UploadCenter() {
       } else if (fileType === 'log') {
         const { errors, summary } = parseLogFile(content);
 
-        const { error } = await supabase.from('error_logs').insert({
+        await jsonStorage.insert('error_logs', {
           filename: selectedFile.name,
           content,
           errors,
           summary
         });
 
-        if (error) throw error;
-
         const mermaidFlow = generateFlowFromLog(content);
-        await supabase.from('flows').insert({
+        await jsonStorage.insert('flows', {
           title: `Flow from ${selectedFile.name}`,
           source: selectedFile.name,
           mermaid_text: mermaidFlow

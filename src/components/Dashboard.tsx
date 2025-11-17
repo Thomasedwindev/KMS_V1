@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FileCode, Database, AlertCircle, BookOpen, GitBranch } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { jsonStorage } from '../lib/jsonStorage';
 
 interface Stats {
   codeDocs: number;
@@ -25,11 +25,11 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: string) =
 
   async function loadStats() {
     const [codeDocs, queries, errors, sops, flows] = await Promise.all([
-      supabase.from('code_docs').select('id', { count: 'exact', head: true }),
-      supabase.from('query_library').select('id', { count: 'exact', head: true }),
-      supabase.from('error_logs').select('id', { count: 'exact', head: true }),
-      supabase.from('sop_library').select('id', { count: 'exact', head: true }),
-      supabase.from('flows').select('id', { count: 'exact', head: true })
+      jsonStorage.select('code_docs'),
+      jsonStorage.select('query_library'),
+      jsonStorage.select('error_logs'),
+      jsonStorage.select('sop_library'),
+      jsonStorage.select('flows')
     ]);
 
     setStats({

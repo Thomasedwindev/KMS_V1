@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, FileCode, Database, AlertCircle, BookOpen } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { jsonStorage } from '../lib/jsonStorage';
 
 interface SearchResult {
   type: 'code' | 'query' | 'error' | 'sop';
@@ -20,16 +20,14 @@ export default function SearchCenter() {
     try {
       const searchLower = query.toLowerCase();
 
-      const [codeData, queryData, errorData, sopData] = await Promise.all([
-        supabase.from('code_docs').select('*'),
-        supabase.from('query_library').select('*'),
-        supabase.from('error_logs').select('*'),
-        supabase.from('sop_library').select('*')
-      ]);
+      const codeData = await jsonStorage.select('code_docs');
+      const queryData = await jsonStorage.select('query_library');
+      const errorData = await jsonStorage.select('error_logs');
+      const sopData = await jsonStorage.select('sop_library');
 
       const searchResults: SearchResult[] = [];
 
-      (codeData.data || []).forEach((doc) => {
+      (codeData.data || []).forEach((doc: any) => {
         let relevance = 0;
         if (doc.filename?.toLowerCase().includes(searchLower)) relevance += 3;
         if (doc.summary?.toLowerCase().includes(searchLower)) relevance += 2;
@@ -40,7 +38,7 @@ export default function SearchCenter() {
         }
       });
 
-      (queryData.data || []).forEach((q) => {
+      (queryData.data || []).forEach((q: any) => {
         let relevance = 0;
         if (q.query_text?.toLowerCase().includes(searchLower)) relevance += 3;
         if (q.category?.toLowerCase().includes(searchLower)) relevance += 2;
@@ -51,7 +49,7 @@ export default function SearchCenter() {
         }
       });
 
-      (errorData.data || []).forEach((err) => {
+      (errorData.data || []).forEach((err: any) => {
         let relevance = 0;
         if (err.filename?.toLowerCase().includes(searchLower)) relevance += 3;
         if (err.summary?.toLowerCase().includes(searchLower)) relevance += 2;
@@ -69,7 +67,7 @@ export default function SearchCenter() {
         }
       });
 
-      (sopData.data || []).forEach((sop) => {
+      (sopData.data || []).forEach((sop: any) => {
         let relevance = 0;
         if (sop.title?.toLowerCase().includes(searchLower)) relevance += 3;
         if (sop.category?.toLowerCase().includes(searchLower)) relevance += 2;

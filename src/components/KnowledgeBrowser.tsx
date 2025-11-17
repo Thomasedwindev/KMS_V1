@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FileCode, Database, AlertCircle, BookOpen, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { jsonStorage } from '../lib/jsonStorage';
 
 type Tab = 'code' | 'queries' | 'errors' | 'sops';
 
@@ -21,17 +21,17 @@ export default function KnowledgeBrowser() {
     setLoading(true);
     try {
       if (activeTab === 'code') {
-        const { data } = await supabase.from('code_docs').select('*').order('created_at', { ascending: false });
-        setCodeDocs(data || []);
+        const { data } = await jsonStorage.select('code_docs');
+        setCodeDocs(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       } else if (activeTab === 'queries') {
-        const { data } = await supabase.from('query_library').select('*').order('created_at', { ascending: false });
-        setQueries(data || []);
+        const { data } = await jsonStorage.select('query_library');
+        setQueries(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       } else if (activeTab === 'errors') {
-        const { data } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false });
-        setErrors(data || []);
+        const { data } = await jsonStorage.select('error_logs');
+        setErrors(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       } else if (activeTab === 'sops') {
-        const { data } = await supabase.from('sop_library').select('*').order('created_at', { ascending: false });
-        setSops(data || []);
+        const { data } = await jsonStorage.select('sop_library');
+        setSops(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       }
     } catch (error) {
       console.error('Error loading data:', error);

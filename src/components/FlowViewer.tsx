@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { GitBranch, Plus, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { jsonStorage } from '../lib/jsonStorage';
 import mermaid from 'mermaid';
 
 export default function FlowViewer() {
@@ -27,8 +27,9 @@ export default function FlowViewer() {
   }, [selectedFlow]);
 
   async function loadFlows() {
-    const { data } = await supabase.from('flows').select('*').order('created_at', { ascending: false });
-    setFlows(data || []);
+    const { data } = await jsonStorage.select('flows');
+    const sorted = data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setFlows(sorted);
   }
 
   async function renderDiagram() {
@@ -49,13 +50,11 @@ export default function FlowViewer() {
     if (!newFlowTitle.trim() || !newFlowMermaid.trim()) return;
 
     try {
-      const { error } = await supabase.from('flows').insert({
+      await jsonStorage.insert('flows', {
         title: newFlowTitle,
         source: 'manual',
         mermaid_text: newFlowMermaid
       });
-
-      if (error) throw error;
 
       setShowCreateModal(false);
       setNewFlowTitle('');

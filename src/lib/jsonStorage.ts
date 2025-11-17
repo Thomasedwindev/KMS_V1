@@ -5,6 +5,14 @@ interface StorageData {
   error_logs: any[];
   sop_library: any[];
   flows: any[];
+  documents: any[];
+  diagrams: any[];
+  source_code: any[];
+  images: any[];
+  media: any[];
+  spreadsheets: any[];
+  archives: any[];
+  other_files: any[];
 }
 
 const STORAGE_KEY = 'kms_prototype_data';
@@ -14,7 +22,15 @@ const defaultData: StorageData = {
   query_library: [],
   error_logs: [],
   sop_library: [],
-  flows: []
+  flows: [],
+  documents: [],
+  diagrams: [],
+  source_code: [],
+  images: [],
+  media: [],
+  spreadsheets: [],
+  archives: [],
+  other_files: []
 };
 
 function getStorageData(): StorageData {
